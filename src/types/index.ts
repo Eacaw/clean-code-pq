@@ -2,10 +2,10 @@ export interface Session {
   id: string;
   name: string;
   status: "pending" | "active" | "completed";
-  createdAt: any; // Firestore Timestamp
+  createdAt: Date; // Firestore Timestamp
   questionIds: string[]; // References to questions in this session
   currentQuestionIndex?: number; // Index of the current active question
-  currentQuestionStartTime?: any; // Timestamp when the current question started
+  currentQuestionStartTime?: Date; // Timestamp when the current question started
 }
 
 // QuestionBase defines the common properties for all question types
@@ -41,7 +41,7 @@ export interface Team {
   members?: string[]; // Array of user IDs
   score: number;
   sessionId?: string; // Reference to the session this team is part of
-  createdAt: any; // Firestore Timestamp
+  createdAt: Date; // Firestore Timestamp
 }
 
 // SubmissionBase defines the common properties for all submission types
@@ -50,13 +50,13 @@ export interface SubmissionBase {
   questionId: string;
   teamId: string;
   sessionId: string;
-  timestamp: any; // Firestore Timestamp
-  submittedAt: any; // Timestamp when the submission was made
+  timestamp: Date; // Firestore Timestamp
+  submittedAt: Date; // Timestamp when the submission was made
   status: "pending" | "correct" | "incorrect" | "partial" | "marked";
   score: number;
   conciseBonus?: number;
   criteria?: Record<string, number>;
-  markedAt?: any; // Timestamp when the submission was marked
+  markedAt?: Date; // Timestamp when the submission was marked
   questionType: "mcq" | "edit_code" | "concise_code" | "qa" | "explain_code";
 }
 
