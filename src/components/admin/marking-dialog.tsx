@@ -10,7 +10,10 @@ interface MarkingDialogProps {
   onClose: () => void;
   submission: Submission;
   question: Question | null;
-  onSaveScore: (submissionId: string, criteria: Record<string, number>) => void;
+  onSaveScore: (
+    submissionId: string,
+    criteria: Record<string, number | undefined>
+  ) => void;
 }
 
 export default function MarkingDialog({
@@ -21,7 +24,7 @@ export default function MarkingDialog({
   onSaveScore,
 }: MarkingDialogProps) {
   const isExplainCode = question?.type === "explain_code";
-  const [criteria, setCriteria] = useState(
+  const [criteria, setCriteria] = useState<Record<string, number | undefined>>(
     isExplainCode
       ? {
           explanationScore: submission.criteria?.explanationScore || 0,
@@ -54,7 +57,7 @@ export default function MarkingDialog({
 
   // Calculate total score based on the question type
   const totalScore = Object.values(criteria).reduce(
-    (sum, score) => sum + score,
+    (sum, score) => (sum ?? 0) + (score ?? 0),
     0
   );
   // Set max score based on question type
@@ -130,7 +133,7 @@ export default function MarkingDialog({
                       Explanation Quality
                     </label>
                     <StarRating
-                      value={criteria.explanationScore}
+                      value={criteria.explanationScore ?? 0}
                       onChange={(value) =>
                         handleRatingChange("explanationScore", value)
                       }
@@ -146,7 +149,7 @@ export default function MarkingDialog({
                         Readability
                       </label>
                       <StarRating
-                        value={criteria.readability}
+                        value={criteria.readability ?? 0}
                         onChange={(value) =>
                           handleRatingChange("readability", value)
                         }
@@ -161,7 +164,7 @@ export default function MarkingDialog({
                         Maintainability
                       </label>
                       <StarRating
-                        value={criteria.maintainability}
+                        value={criteria.maintainability ?? 0}
                         onChange={(value) =>
                           handleRatingChange("maintainability", value)
                         }
@@ -176,7 +179,7 @@ export default function MarkingDialog({
                         Elegance
                       </label>
                       <StarRating
-                        value={criteria.elegance}
+                        value={criteria.elegance ?? 0}
                         onChange={(value) =>
                           handleRatingChange("elegance", value)
                         }
@@ -192,7 +195,7 @@ export default function MarkingDialog({
                         Language Knowledge
                       </label>
                       <StarRating
-                        value={criteria.languageKnowledge}
+                        value={criteria.languageKnowledge ?? 0}
                         onChange={(value) =>
                           handleRatingChange("languageKnowledge", value)
                         }
@@ -208,7 +211,7 @@ export default function MarkingDialog({
                         Simplicity
                       </label>
                       <StarRating
-                        value={criteria.simplicity}
+                        value={criteria.simplicity ?? 0}
                         onChange={(value) =>
                           handleRatingChange("simplicity", value)
                         }

@@ -175,14 +175,20 @@ export default function ManageSessionPage({
   // Handle saving score
   const handleSaveScore = async (
     submissionId: string,
-    criteria: Record<string, number>
+    criteria: Record<string, number | undefined>
   ) => {
     try {
       // Calculate total score (sum of all criteria)
       const totalScore = Object.values(criteria).reduce(
-        (sum, score) => sum + score,
+        (sum, score) => Number(sum || 0) + Number(score || 0),
         0
       );
+
+      // Convert any undefined values in criteria to numbers
+      const normalizedCriteria: Record<string, number> = {};
+      Object.entries(criteria).forEach(([key, value]) => {
+        normalizedCriteria[key] = Number(value || 0);
+      });
 
       // Update submission in Firestore
       const submissionRef = doc(
@@ -191,7 +197,7 @@ export default function ManageSessionPage({
       );
       await updateDoc(submissionRef, {
         score: totalScore,
-        criteria,
+        criteria: normalizedCriteria,
         status: "marked",
         markedAt: serverTimestamp(),
       });
@@ -202,8 +208,8 @@ export default function ManageSessionPage({
           sub.id === submissionId
             ? {
                 ...sub,
-                score: totalScore,
-                criteria,
+                score: totalScore as number,
+                criteria: normalizedCriteria,
                 status: "marked",
                 markedAt: new Date(),
               }

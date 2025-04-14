@@ -159,7 +159,8 @@ export default function QuizPlayPage({
     sessionData.currentQuestionIndex !== undefined &&
     sessionData.currentQuestionIndex >= 0 &&
     currentQuestion &&
-    sessionData.currentQuestionStartTime;
+    sessionData.currentQuestionStartTime &&
+    teamInfo !== null;
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -192,22 +193,23 @@ export default function QuizPlayPage({
         {/* Quiz content */}
         <div>
           {!isQuestionActive || hasSubmitted ? (
-            <WaitingScreen 
+            <WaitingScreen
               isQuizComplete={
-                sessionData?.currentQuestionIndex !== undefined && 
+                sessionData?.currentQuestionIndex !== undefined &&
                 sessionData?.questionIds?.length !== undefined &&
-                sessionData.currentQuestionIndex >= sessionData.questionIds.length - 1 && 
+                sessionData.currentQuestionIndex >=
+                  sessionData.questionIds.length - 1 &&
                 hasSubmitted
               }
             />
           ) : (
             <QuestionDisplay
               question={currentQuestion}
-              questionNumber={sessionData.currentQuestionIndex + 1}
+              questionNumber={sessionData.currentQuestionIndex! + 1}
               sessionId={sessionId}
               teamInfo={teamInfo}
-              currentQuestionIndex={sessionData.currentQuestionIndex}
-              currentQuestionStartTime={sessionData.currentQuestionStartTime}
+              currentQuestionIndex={sessionData.currentQuestionIndex!}
+              currentQuestionStartTime={sessionData.currentQuestionStartTime!}
               onSubmissionComplete={handleSubmissionComplete}
             />
           )}
