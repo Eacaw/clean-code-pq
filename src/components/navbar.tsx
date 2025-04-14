@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export default function Navbar() {
-  const { user, isAdmin, signOut } = useAuth();
+  const { isAdmin, signOut } = useAuth();
   const pathname = usePathname();
 
   // Check if we're on an admin page
