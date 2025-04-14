@@ -137,7 +137,7 @@ export default function AdminHostPage({
     };
 
     fetchCurrentQuestion();
-  }, [session?.currentQuestionIndex, session?.questionIds]);
+  }, [session, session?.currentQuestionIndex, session?.questionIds]);
 
   const unlockNextQuestion = async () => {
     if (!session || isUpdating) return;
