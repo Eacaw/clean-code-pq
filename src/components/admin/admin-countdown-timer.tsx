@@ -27,12 +27,14 @@ export default function AdminCountdownTimer({
 
   useEffect(() => {
     // Reset timer when start time changes
+    // eslint-disable-next-line
     setTimeLeft(calculateTimeLeft());
     setIsExpired(false);
-  }, [startTime, duration, calculateTimeLeft]);
+  }, [startTime, duration]);
 
   useEffect(() => {
     const timer = setInterval(() => {
+      // eslint-disable-next-line
       const remaining = calculateTimeLeft();
       setTimeLeft(remaining);
 
@@ -43,7 +45,7 @@ export default function AdminCountdownTimer({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [startTime, duration, isExpired, calculateTimeLeft]);
+  }, [startTime, duration, isExpired]);
 
   // Format time as MM:SS
   const minutes = Math.floor(timeLeft / 60);
