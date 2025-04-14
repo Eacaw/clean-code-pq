@@ -7,7 +7,6 @@ import {
   Timestamp,
   doc,
   getDoc,
-  deleteDoc,
   writeBatch,
   DocumentData,
   QueryDocumentSnapshot,
