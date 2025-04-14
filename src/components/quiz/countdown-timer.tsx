@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Clock } from "lucide-react";
 
 interface CountdownTimerProps {
@@ -29,19 +29,24 @@ export default function CountdownTimer({
     return diff;
   }
 
+  const calculateTimeLeftCallback = useCallback(calculateTimeLeft, [
+    startTime,
+    duration,
+  ]);
+
   useEffect(() => {
     // Reset timer when start time changes
     // eslint-disable-next-line
-    setTimeLeft(calculateTimeLeft());
+    setTimeLeft(calculateTimeLeftCallback());
     setIsExpired(false);
-  }, [startTime, duration]);
+  }, [startTime, duration, calculateTimeLeftCallback]);
 
   useEffect(() => {
     if (isDisabled) return;
 
     const timer = setInterval(() => {
       // eslint-disable-next-line
-      const remaining = calculateTimeLeft();
+      const remaining = calculateTimeLeftCallback();
       setTimeLeft(remaining);
 
       if (remaining <= 0 && !isExpired) {
@@ -52,7 +57,14 @@ export default function CountdownTimer({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [startTime, duration, onTimerEnd, isExpired, isDisabled]);
+  }, [
+    startTime,
+    duration,
+    onTimerEnd,
+    isExpired,
+    isDisabled,
+    calculateTimeLeftCallback,
+  ]);
 
   // Format time as MM:SS
   const minutes = Math.floor(timeLeft / 60);
