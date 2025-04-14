@@ -93,7 +93,7 @@ export default function MarkingDialog({
                 </h4>
                 <div className="bg-gray-950 p-4 rounded-md overflow-x-auto">
                   <pre className="text-sm font-mono text-gray-300 whitespace-pre-wrap">
-                    {submission.code}
+                    {isExplainCode ? submission.explanation : submission.code}
                   </pre>
                 </div>
               </div>
