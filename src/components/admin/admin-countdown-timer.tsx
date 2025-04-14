@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Clock } from "lucide-react";
 
 interface AdminCountdownTimerProps {
@@ -25,17 +25,20 @@ export default function AdminCountdownTimer({
     return diff;
   }
 
+  const calculateTimeLeftCallback = useCallback(calculateTimeLeft, [
+    startTime,
+    duration,
+  ]);
+
   useEffect(() => {
     // Reset timer when start time changes
-    // eslint-disable-next-line
-    setTimeLeft(calculateTimeLeft());
+    setTimeLeft(calculateTimeLeftCallback());
     setIsExpired(false);
-  }, [startTime, duration]);
+  }, [startTime, duration, calculateTimeLeftCallback]);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      // eslint-disable-next-line
-      const remaining = calculateTimeLeft();
+      const remaining = calculateTimeLeftCallback();
       setTimeLeft(remaining);
 
       if (remaining <= 0 && !isExpired) {
@@ -45,7 +48,7 @@ export default function AdminCountdownTimer({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [startTime, duration, isExpired]);
+  }, [startTime, duration, isExpired, calculateTimeLeftCallback]);
 
   // Format time as MM:SS
   const minutes = Math.floor(timeLeft / 60);
