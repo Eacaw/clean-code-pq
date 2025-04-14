@@ -88,6 +88,7 @@ export default function QuestionForm({
         };
       } else {
         // For other question types, remove correctOptionIndex if it exists
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { correctOptionIndex, ...otherData } = baseQuestionData;
         questionData = otherData;
       }
@@ -217,7 +218,10 @@ export default function QuestionForm({
           </div>
 
           <div>
-            <label htmlFor="imageUrl" className="block text-sm font-medium mb-1">
+            <label
+              htmlFor="imageUrl"
+              className="block text-sm font-medium mb-1"
+            >
               Image URL (Optional)
             </label>
             <input
@@ -230,7 +234,8 @@ export default function QuestionForm({
               className="w-full p-2 bg-gray-800 border border-gray-700 rounded-md focus:ring-primary focus:border-primary"
             />
             <p className="text-xs text-gray-400 mt-1">
-              Paste a direct link to an image that will be displayed with the question
+              Paste a direct link to an image that will be displayed with the
+              question
             </p>
           </div>
         </div>
