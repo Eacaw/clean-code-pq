@@ -4,7 +4,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     // Helper functions
     function isAdmin() {
-      return request.auth != null && request.auth.token.email == 'davidpinchen@gmail.com';
+      return request.auth != null && (request.auth.token.email == 'davidpinchen@gmail.com' || request.auth.token.email == 'chill@certinia.com' || request.auth.token.email == 'mmontagnese@certinia.com' || request.auth.token.email == 'dpinchen@certinia.com');
     }
     
     function isSignedIn() {

@@ -18,7 +18,12 @@ import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 
 // Define the admin email
-const ADMIN_EMAIL = "davidpinchen@gmail.com";
+const ADMIN_EMAILS = [
+  "davidpinchen@gmail.com",
+  "dpinchen@certinia.com",
+  "mmontagnese@certinia.com",
+  "chill@certinia.com",
+];
 
 interface AuthContextType {
   user: User | null;
@@ -36,7 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   // Check if the current user is an admin
-  const isAdmin = user?.email === ADMIN_EMAIL;
+  const isAdmin = user?.email ? ADMIN_EMAILS.includes(user.email) : false;
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
