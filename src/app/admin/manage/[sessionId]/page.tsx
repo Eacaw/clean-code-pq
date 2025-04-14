@@ -60,47 +60,6 @@ export default function ManageSessionPage({
     }
   }, [isLoading, isAdmin, router]);
 
-  // Fetch session data
-  useEffect(() => {
-    if (!isAdmin) return;
-
-    async function fetchSessionData() {
-      try {
-        const sessionDoc = await getDoc(doc(db, "sessions", sessionId));
-
-        if (!sessionDoc.exists()) {
-          setError("Session not found");
-          setLoading(false);
-          return;
-        }
-
-        const sessionData = {
-          id: sessionDoc.id,
-          ...sessionDoc.data(),
-        } as Session;
-
-        setSession(sessionData);
-
-        // Fetch questions for this session
-        await fetchQuestions(sessionData.questionIds || []);
-
-        // Fetch submissions for this session
-        await fetchSubmissions();
-
-        // Fetch teams for this session
-        await fetchTeams();
-
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching session:", err);
-        setError("Failed to load session data. Please try again.");
-        setLoading(false);
-      }
-    }
-
-    fetchSessionData();
-  }, [sessionId, isAdmin]);
-
   // Fetch questions
   const fetchQuestions = async (questionIds: string[]) => {
     if (questionIds.length === 0) return;
@@ -165,6 +124,47 @@ export default function ManageSessionPage({
       console.error("Error fetching teams:", err);
     }
   };
+
+  // Fetch session data
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    async function fetchSessionData() {
+      try {
+        const sessionDoc = await getDoc(doc(db, "sessions", sessionId));
+
+        if (!sessionDoc.exists()) {
+          setError("Session not found");
+          setLoading(false);
+          return;
+        }
+
+        const sessionData = {
+          id: sessionDoc.id,
+          ...sessionDoc.data(),
+        } as Session;
+
+        setSession(sessionData);
+
+        // Fetch questions for this session
+        await fetchQuestions(sessionData.questionIds || []);
+
+        // Fetch submissions for this session
+        await fetchSubmissions();
+
+        // Fetch teams for this session
+        await fetchTeams();
+
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching session:", err);
+        setError("Failed to load session data. Please try again.");
+        setLoading(false);
+      }
+    }
+
+    fetchSessionData();
+  }, [sessionId, isAdmin, fetchSubmissions, fetchTeams]);
 
   // Handle marking submission
   const handleMarkSubmission = (submission: Submission) => {
