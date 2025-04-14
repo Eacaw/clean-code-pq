@@ -12,5 +12,5 @@ export interface Question {
   instructions?: string;
   scoringCriteria?: string;
   imageUrl?: string;
-  createdAt?: any;
+  createdAt?: Date;
 }
