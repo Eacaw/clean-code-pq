@@ -13,7 +13,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Session } from "@/types";
-import { PlusCircle, Play, Settings, CheckCircle, Trash2 } from "lucide-react";
+import { PlusCircle, Play, Armchair, CheckCircle, Trash2 } from "lucide-react";
 import Link from "next/link";
 import CreateSessionModal from "@/components/admin/create-session-modal";
 
@@ -252,13 +252,14 @@ export default function AdminDashboard() {
                           </button>
                         )}
 
-                        <Link
-                          href={`/admin/host/${session.id}`}
-                          className="p-2 bg-gray-800 hover:bg-gray-700 rounded-md"
-                          title="Host Controls"
-                        >
-                          <Settings size={16} />
-                        </Link>
+                        <button className="p-2 bg-gray-800 hover:bg-gray-700 rounded-md">
+                          <Link
+                            href={`/admin/host/${session.id}`}
+                            title="Host Controls"
+                          >
+                            <Armchair size={16} />
+                          </Link>
+                        </button>
 
                         <button
                           onClick={() => handleCompleteSession(session.id)}
