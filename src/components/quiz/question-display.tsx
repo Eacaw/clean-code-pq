@@ -123,8 +123,7 @@ export default function QuestionDisplay({
       } else if (question.type === "explain_code") {
         submissionData = {
           ...submissionData,
-          explanation: answer,
-          // For explain_code questions, status remains "pending" until manually marked
+          code: answer,
         };
       }
 
