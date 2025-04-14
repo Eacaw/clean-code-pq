@@ -1,0 +1,83 @@
+
+service cloud.firestore {
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'davidpinchen@gmail.com';
+    }
+    
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isActiveSession(sessionId) {
+      return get(/databases/$(database)/documents/sessions/$(sessionId)).data.status == 'active';
+    }
+    
+    function isCurrentQuestion(sessionId, questionIndex) {
+      return get(/databases/$(database)/documents/sessions/$(sessionId)).data.currentQuestionIndex == questionIndex;
+    }
+    
+    // Sessions collection
+    match /sessions/{sessionId} {
+      // Admin can read/write all sessions
+      // Any user can read active sessions
+      allow read: if isAdmin() || resource.data.status == 'active';
+      allow create, update, delete: if isAdmin();
+      
+      // Teams subcollection
+      match /teams/{teamId} {
+        // Admin can read/write all teams
+        // Teams can be created by any user for active sessions
+        // Teams can only read their own data
+        allow read: if isAdmin() || (isSignedIn() && resource.data.teamId == request.auth.uid);
+        allow create: if isActiveSession(sessionId);
+        allow update: if isAdmin();
+      }
+      
+      // Submissions subcollection
+      match /submissions/{submissionId} {
+        // Admin can read/write all submissions
+        // Users can create submissions for the current question in active sessions
+        // Users can only read their own submissions
+        allow read: if isAdmin() || (isSignedIn() && resource.data.teamId == request.auth.uid);
+        allow create: if isActiveSession(sessionId) && 
+                       isCurrentQuestion(sessionId, request.resource.data.questionIndex);
+        allow update: if isAdmin();
+      }
+    }
+    
+    // Questions collection (global)
+    match /questions/{questionId} {
+      // Admin can read/write all questions
+      // Any user can read questions
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // Responses collection (top-level)
+    match /responses/{responseId} {
+      // Admin can read/write all responses
+      // Users can read their own responses
+      allow read: if isAdmin() || (isSignedIn() && resource.data.teamId == request.auth.uid);
+      allow write: if isAdmin();
+      allow create: if isSignedIn() && 
+                    isActiveSession(resource.data.sessionId) && 
+                    isCurrentQuestion(resource.data.sessionId, resource.data.questionIndex);
+    }
+    
+    // Teams collection (top-level)
+    match /teams/{teamId} {
+      // Admin can read/write all teams
+      allow read: if isAdmin() || (isSignedIn() && resource.data.teamId == request.auth.uid);
+      allow write: if isAdmin();
+      allow create: if isSignedIn() && isActiveSession(resource.data.sessionId);
+    }
+    
+    // Allow admin to access any document
+    match /{document=**} {
+      allow read, write, update, delete: if isAdmin();
+    }
+  }
+}
