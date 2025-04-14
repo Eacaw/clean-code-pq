@@ -11,10 +11,11 @@ import {
   limit,
   onSnapshot,
   serverTimestamp,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/lib/auth";
-import type { Session, Team } from "@/types";
+import type { Session, Team, Question } from "@/types";
 import AdminCountdownTimer from "@/components/admin/admin-countdown-timer";
 import { Play, AlertTriangle } from "lucide-react";
 
@@ -32,6 +33,7 @@ export default function AdminHostPage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
 
   // Redirect if not admin
   useEffect(() => {
@@ -102,6 +104,40 @@ export default function AdminHostPage({
 
     return () => unsubscribe();
   }, [sessionId, isAdmin]);
+
+  // Fetch current question data when the question index changes
+  useEffect(() => {
+    if (
+      !session ||
+      session.currentQuestionIndex === undefined ||
+      session.currentQuestionIndex < 0
+    ) {
+      setCurrentQuestion(null);
+      return;
+    }
+
+    const fetchCurrentQuestion = async () => {
+      try {
+        const questionId = session.questionIds?.[session.currentQuestionIndex];
+        if (!questionId) {
+          setCurrentQuestion(null);
+          return;
+        }
+
+        const questionDoc = await getDoc(doc(db, "questions", questionId));
+        if (questionDoc.exists()) {
+          setCurrentQuestion({
+            id: questionDoc.id,
+            ...questionDoc.data(),
+          } as Question);
+        }
+      } catch (err) {
+        console.error("Error fetching question:", err);
+      }
+    };
+
+    fetchCurrentQuestion();
+  }, [session?.currentQuestionIndex, session?.questionIds]);
 
   const unlockNextQuestion = async () => {
     if (!session || isUpdating) return;
@@ -188,8 +224,8 @@ export default function AdminHostPage({
   const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
   const isSessionCompleted = session.status === "completed";
 
-  // Get current question time limit
-  const currentQuestionTimeLimit = 300; // Default 5 minutes (300 seconds)
+  // Get current question time limit from the actual question data
+  const currentQuestionTimeLimit = currentQuestion?.timeLimit || 300; // Fallback to 5 minutes if not available
 
   return (
     <div className="space-y-8">
