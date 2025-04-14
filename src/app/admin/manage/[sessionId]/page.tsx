@@ -150,9 +150,11 @@ export default function ManageSessionPage({
         await fetchQuestions(sessionData.questionIds || []);
 
         // Fetch submissions for this session
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         await fetchSubmissions();
 
         // Fetch teams for this session
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         await fetchTeams();
 
         setLoading(false);
@@ -164,7 +166,7 @@ export default function ManageSessionPage({
     }
 
     fetchSessionData();
-  }, [sessionId, isAdmin, fetchSubmissions, fetchTeams]);
+  }, [sessionId, isAdmin]);
 
   // Handle marking submission
   const handleMarkSubmission = (submission: Submission) => {
