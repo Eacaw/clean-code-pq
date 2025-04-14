@@ -3,6 +3,7 @@ import { deleteSession } from "@/lib/firebase/sessions";
 import { useState } from "react";
 
 interface SessionsTableProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sessions: Array<{ id: string; [key: string]: any }>;
   onRefresh?: () => void;
 }
