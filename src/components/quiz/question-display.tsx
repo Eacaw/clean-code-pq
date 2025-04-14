@@ -32,6 +32,7 @@ export default function QuestionDisplay({
   currentQuestionStartTime,
   onSubmissionComplete,
 }: QuestionDisplayProps) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [answer, setAnswer] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -70,6 +71,7 @@ export default function QuestionDisplay({
       }
 
       // Prepare submission data
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let submissionData: any = {
         teamId: teamInfo.teamId,
         teamName: teamInfo.teamName,
