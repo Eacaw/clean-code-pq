@@ -118,7 +118,7 @@ export default function AdminHostPage({
 
     const fetchCurrentQuestion = async () => {
       try {
-        const questionId = session.questionIds?.[session.currentQuestionIndex];
+        const questionId = session.questionIds?.[session.currentQuestionIndex!];
         if (!questionId) {
           setCurrentQuestion(null);
           return;
