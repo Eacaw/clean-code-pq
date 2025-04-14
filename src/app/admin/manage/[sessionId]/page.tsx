@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   doc,
@@ -61,7 +61,7 @@ export default function ManageSessionPage({
   }, [isLoading, isAdmin, router]);
 
   // Fetch questions
-  const fetchQuestions = async (questionIds: string[]) => {
+  const fetchQuestions = useCallback(async (questionIds: string[]) => {
     if (questionIds.length === 0) return;
 
     try {
@@ -81,10 +81,10 @@ export default function ManageSessionPage({
     } catch (err) {
       console.error("Error fetching questions:", err);
     }
-  };
+  }, []);
 
   // Fetch submissions
-  const fetchSubmissions = async () => {
+  const fetchSubmissions = useCallback(async () => {
     try {
       const submissionsRef = collection(
         db,
@@ -105,10 +105,10 @@ export default function ManageSessionPage({
     } catch (err) {
       console.error("Error fetching submissions:", err);
     }
-  };
+  }, [sessionId]);
 
   // Fetch teams
-  const fetchTeams = async () => {
+  const fetchTeams = useCallback(async () => {
     try {
       const teamsRef = collection(db, `sessions/${sessionId}/teams`);
       const teamsQuery = query(teamsRef, orderBy("score", "desc"));
@@ -123,7 +123,7 @@ export default function ManageSessionPage({
     } catch (err) {
       console.error("Error fetching teams:", err);
     }
-  };
+  }, [sessionId]);
 
   // Fetch session data
   useEffect(() => {
@@ -150,11 +150,9 @@ export default function ManageSessionPage({
         await fetchQuestions(sessionData.questionIds || []);
 
         // Fetch submissions for this session
-        // eslint-disable-next-line react-hooks/exhaustive-deps
         await fetchSubmissions();
 
         // Fetch teams for this session
-        // eslint-disable-next-line react-hooks/exhaustive-deps
         await fetchTeams();
 
         setLoading(false);
@@ -166,7 +164,7 @@ export default function ManageSessionPage({
     }
 
     fetchSessionData();
-  }, [sessionId, isAdmin]);
+  }, [sessionId, isAdmin, fetchQuestions, fetchSubmissions, fetchTeams]);
 
   // Handle marking submission
   const handleMarkSubmission = (submission: Submission) => {
