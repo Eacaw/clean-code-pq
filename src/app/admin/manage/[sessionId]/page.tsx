@@ -285,8 +285,6 @@ export default function ManageSessionPage({
 
       // Update local state
       setSubmissions(updatedSubmissions);
-
-      alert("Concise code bonuses calculated and applied successfully!");
     } catch (err) {
       console.error("Error calculating concise bonus:", err);
       alert("Failed to calculate concise code bonuses. Please try again.");
@@ -355,8 +353,6 @@ export default function ManageSessionPage({
       // Update local state
       setTeams(updatedTeams);
       setShowLeaderboard(true);
-
-      alert("Final scores updated successfully!");
     } catch (err) {
       console.error("Error updating final scores:", err);
       alert("Failed to update final scores. Please try again.");
