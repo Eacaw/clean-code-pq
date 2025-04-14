@@ -123,7 +123,7 @@ export default function QuestionDisplay({
       } else if (question.type === "explain_code") {
         submissionData = {
           ...submissionData,
-          code: answer,
+          explanation: answer,
         };
       }
 
