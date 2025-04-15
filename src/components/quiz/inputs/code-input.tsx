@@ -22,6 +22,7 @@ export default function CodeInput({
     <div className="space-y-2">
       <h3 className="font-medium mb-2">Code:</h3>
       <AceEditor
+        placeholder={placeholder}
         mode="javascript"
         value={initialCode}
         theme="monokai"
