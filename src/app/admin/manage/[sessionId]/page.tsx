@@ -60,6 +60,10 @@ export default function ManageSessionPage({
     }
   }, [isLoading, isAdmin, router]);
 
+  const handleSessionHostClick = () => {
+    router.push(`/admin/host/${sessionId}`);
+  };
+
   // Fetch questions
   const fetchQuestions = useCallback(async (questionIds: string[]) => {
     if (questionIds.length === 0) return;
@@ -425,8 +429,16 @@ export default function ManageSessionPage({
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Manage & Mark Session</h1>
-        <div className="text-sm px-3 py-1 rounded-full bg-gray-800">
-          Session ID: {sessionId}
+        <div className="flex items-center gap-4">
+          <button
+            onClick={handleSessionHostClick}
+            className="text-sm font-medium text-gray-400 hover:text-primary"
+          >
+            Go to hosting
+          </button>
+          <div className="text-sm px-3 py-1 rounded-full bg-gray-800">
+            Session ID: {sessionId}
+          </div>
         </div>
       </div>
 

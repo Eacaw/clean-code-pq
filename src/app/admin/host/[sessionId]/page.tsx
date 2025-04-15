@@ -42,6 +42,11 @@ export default function AdminHostPage({
     }
   }, [isLoading, isAdmin, router]);
 
+  // Navigate to the session management page on click
+  const handleSessionManagementClick = () => {
+    router.push(`/admin/manage/${sessionId}`);
+  };
+
   // Listen to session document in real-time
   useEffect(() => {
     if (!isAdmin) return;
@@ -231,8 +236,16 @@ export default function AdminHostPage({
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Host Controls</h1>
-        <div className="text-sm px-3 py-1 rounded-full bg-gray-800">
-          Session ID: {sessionId}
+        <div className="flex items-center gap-4">
+          <button
+            onClick={handleSessionManagementClick}
+            className="text-sm font-medium text-gray-400 hover:text-primary"
+          >
+            Go to marking
+          </button>
+          <div className="text-sm px-3 py-1 rounded-full bg-gray-800">
+            Session ID: {sessionId}
+          </div>
         </div>
       </div>
 
