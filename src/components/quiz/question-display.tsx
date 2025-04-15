@@ -9,6 +9,7 @@ import CountdownTimer from "./countdown-timer";
 import MCQInput from "./inputs/mcq-input";
 import CodeInput from "./inputs/code-input";
 import QAInput from "./inputs/qa-input";
+import CodeBlock from "./code-block";
 
 interface QuestionDisplayProps {
   question: Question;
@@ -194,9 +195,7 @@ export default function QuestionDisplay({
               <h3 className="font-medium text-gray-300 mb-2">
                 Code to Explain:
               </h3>
-              <pre className="bg-gray-950 p-4 rounded overflow-x-auto font-mono text-sm">
-                {question.initialCode}
-              </pre>
+              <CodeBlock codeString={question.initialCode} />
             </div>
 
             <div className="bg-gray-800 p-4 rounded-lg">
