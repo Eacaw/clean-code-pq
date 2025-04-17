@@ -17,7 +17,7 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "@/lib/auth";
 import type { Session, Team, Question } from "@/types";
 import AdminCountdownTimer from "@/components/admin/admin-countdown-timer";
-import { Play, AlertTriangle } from "lucide-react";
+import { Play, AlertTriangle, X as XIcon, CheckCircle } from "lucide-react";
 
 export default function AdminHostPage({
   params,
@@ -33,7 +33,11 @@ export default function AdminHostPage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
+  const [teamSubmissions, setTeamSubmissions] = useState<
+    Record<string, Record<string, boolean>>
+  >({});
 
   // Redirect if not admin
   useEffect(() => {
@@ -85,7 +89,7 @@ export default function AdminHostPage({
     return () => unsubscribe();
   }, [sessionId, isAdmin]);
 
-  // Listen to top teams
+  // Listen to top teams (real-time)
   useEffect(() => {
     if (!isAdmin) return;
 
@@ -110,39 +114,79 @@ export default function AdminHostPage({
     return () => unsubscribe();
   }, [sessionId, isAdmin]);
 
-  // Fetch current question data when the question index changes
+  // Listen to submissions for top teams and all questions (real-time)
   useEffect(() => {
-    if (
-      !session ||
-      session.currentQuestionIndex === undefined ||
-      session.currentQuestionIndex < 0
-    ) {
+    if (!isAdmin || topTeams.length === 0 || !session?.questionIds?.length)
+      return;
+
+    // Listen only for submissions from the current top teams
+    const unsub = onSnapshot(
+      collection(db, `sessions/${sessionId}/submissions`),
+      (snapshot) => {
+        // Build a map: teamId -> questionId -> hasSubmitted
+        const submissionMap: Record<string, Record<string, boolean>> = {};
+        snapshot.docs.forEach((doc) => {
+          const data = doc.data();
+          const teamId = data.teamId;
+          const questionId = data.questionId;
+          // Only consider submissions from teams currently in topTeams
+          if (
+            teamId &&
+            questionId &&
+            topTeams.some((team) => team.id === teamId)
+          ) {
+            if (!submissionMap[teamId]) submissionMap[teamId] = {};
+            submissionMap[teamId][questionId] = true;
+          }
+        });
+        setTeamSubmissions(submissionMap);
+      }
+    );
+
+    return () => unsub();
+  }, [sessionId, isAdmin, topTeams, session?.questionIds]);
+
+  // Fetch all questions for the session up front
+  useEffect(() => {
+    if (!session || !session.questionIds || session.questionIds.length === 0) {
+      setQuestions([]);
       setCurrentQuestion(null);
       return;
     }
-
-    const fetchCurrentQuestion = async () => {
+    let isMounted = true;
+    const fetchQuestions = async () => {
       try {
-        const questionId = session.questionIds?.[session.currentQuestionIndex!];
-        if (!questionId) {
-          setCurrentQuestion(null);
-          return;
-        }
-
-        const questionDoc = await getDoc(doc(db, "questions", questionId));
-        if (questionDoc.exists()) {
-          setCurrentQuestion({
-            id: questionDoc.id,
-            ...questionDoc.data(),
-          } as Question);
+        const questionDocs = await Promise.all(
+          session.questionIds.map((qid) => getDoc(doc(db, "questions", qid)))
+        );
+        const fetchedQuestions = questionDocs
+          .filter((doc) => doc.exists())
+          .map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          })) as Question[];
+        if (isMounted) {
+          setQuestions(fetchedQuestions);
+          // Set current question if index is valid
+          if (
+            session.currentQuestionIndex !== undefined &&
+            session.currentQuestionIndex >= 0 &&
+            session.currentQuestionIndex < fetchedQuestions.length
+          ) {
+            setCurrentQuestion(fetchedQuestions[session.currentQuestionIndex]);
+          } else {
+            setCurrentQuestion(null);
+          }
         }
       } catch (err) {
-        console.error("Error fetching question:", err);
+        console.error("Error fetching questions:", err);
       }
     };
-
-    fetchCurrentQuestion();
-  }, [session, session?.currentQuestionIndex, session?.questionIds]);
+    fetchQuestions();
+    return () => {
+      isMounted = false;
+    };
+  }, [session]);
 
   const unlockNextQuestion = async () => {
     if (!session || isUpdating) return;
@@ -220,7 +264,6 @@ export default function AdminHostPage({
     session.currentQuestionIndex >= 0 &&
     session.currentQuestionStartTime;
 
-  // Get current question details
   const currentQuestionIndex =
     session.currentQuestionIndex !== undefined
       ? session.currentQuestionIndex
@@ -228,9 +271,16 @@ export default function AdminHostPage({
   const totalQuestions = session.questionIds?.length || 0;
   const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
   const isSessionCompleted = session.status === "completed";
+  const currentQuestionTimeLimit = currentQuestion?.timeLimit || 300;
 
-  // Get current question time limit from the actual question data
-  const currentQuestionTimeLimit = currentQuestion?.timeLimit || 300; // Fallback to 5 minutes if not available
+  // Determine question status for each question
+  const getQuestionStatus = (idx: number) => {
+    if (session.currentQuestionIndex === undefined) return "not_started";
+    if (idx < session.currentQuestionIndex) return "done";
+    if (idx === session.currentQuestionIndex && isQuestionActive)
+      return "active";
+    return "not_started";
+  };
 
   return (
     <div className="space-y-8">
@@ -284,6 +334,43 @@ export default function AdminHostPage({
           </div>
         </div>
 
+        {/* Question Cards */}
+        {questions.length > 0 && (
+          <div className="mb-8 flex flex-wrap gap-4 justify-center">
+            {questions.map((q, idx) => {
+              const status = getQuestionStatus(idx);
+              return (
+                <div
+                  key={q.id}
+                  className={`flex flex-col items-center justify-center w-56 min-h-[90px] p-4 rounded-lg border transition-all
+                    ${
+                      status === "done"
+                        ? "bg-green-900/20 border-green-700"
+                        : status === "active"
+                          ? "bg-primary/20 border-primary"
+                          : "bg-gray-800 border-gray-700 opacity-70"
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="font-bold text-lg">Q{idx + 1}</span>
+                    {status === "done" ? (
+                      <CheckCircle className="text-green-500" size={20} />
+                    ) : status === "active" ? (
+                      <span className="text-primary font-bold text-xs">
+                        Active
+                      </span>
+                    ) : (
+                      <XIcon className="text-gray-500" size={20} />
+                    )}
+                  </div>
+                  <div className="text-xs text-gray-400 mt-1">{q.type}</div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         <div className="space-y-6">
           {/* Session controls */}
           <div className="flex justify-center">
@@ -325,38 +412,51 @@ export default function AdminHostPage({
             </p>
           </div>
 
-          {/* Top teams */}
-          {topTeams.length > 0 && (
-            <div className="mt-8">
-              <h3 className="text-lg font-medium mb-4">Top Teams</h3>
-              <div className="grid gap-3">
-                {topTeams.map((team, index) => (
-                  <div
-                    key={team.id}
-                    className={`flex justify-between items-center p-3 rounded-md ${
-                      index === 0
-                        ? "bg-yellow-900/20 border border-yellow-900/30"
-                        : "bg-gray-800"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                          index === 0
-                            ? "bg-yellow-500 text-gray-900"
-                            : index === 1
-                              ? "bg-gray-400 text-gray-900"
-                              : "bg-amber-700 text-gray-200"
-                        }`}
+          {/* Top teams table */}
+          {topTeams.length > 0 && questions.length > 0 && (
+            <div className="mt-8 overflow-x-auto">
+              <h3 className="text-lg font-medium mb-4">Participating Teams</h3>
+              <table className="min-w-full border-collapse rounded-lg overflow-hidden">
+                <thead>
+                  <tr className="bg-gray-800 text-left">
+                    <th className="p-3 border-b border-gray-700">Team</th>
+                    {questions.map((q, idx) => (
+                      <th
+                        key={q.id}
+                        className="p-3 border-b border-gray-700 text-center"
                       >
-                        {index + 1}
-                      </div>
-                      <span className="font-medium">{team.name}</span>
-                    </div>
-                    <div className="font-bold">{team.score} pts</div>
-                  </div>
-                ))}
-              </div>
+                        Q{idx + 1}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {topTeams.map((team) => (
+                    <tr key={team.id} className="border-b border-gray-800">
+                      <td className="p-3 font-medium">{team.name}</td>
+                      {questions.map((q) => {
+                        const submitted =
+                          teamSubmissions[team.id]?.[q.id] ?? false;
+                        return (
+                          <td key={q.id} className="p-3 text-center">
+                            {submitted ? (
+                              <CheckCircle
+                                className="text-green-500 inline"
+                                size={18}
+                              />
+                            ) : (
+                              <XIcon
+                                className="text-red-500 inline"
+                                size={18}
+                              />
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
