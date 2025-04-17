@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import type { Question, Submission } from "@/types";
 import StarRating from "./star-rating";
@@ -44,6 +44,17 @@ export default function MarkingDialog({
   );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Prevent background scroll when dialog is open
+  useEffect(() => {
+    if (isOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isOpen]);
 
   if (!isOpen || !question) return null;
 
