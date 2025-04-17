@@ -12,7 +12,7 @@ interface MarkingDialogProps {
   question: Question | null;
   onSaveScore: (
     submissionId: string,
-    criteria: Record<string, number | boolean | undefined>
+    criteria: Record<string, number | undefined>
   ) => void;
 }
 
@@ -25,16 +25,14 @@ export default function MarkingDialog({
 }: MarkingDialogProps) {
   const isExplainCode = question?.type === "explain_code";
   const isQA = question?.type === "qa";
-  const [criteria, setCriteria] = useState<
-    Record<string, number | boolean | undefined>
-  >(
+  const [criteria, setCriteria] = useState<Record<string, number | undefined>>(
     isExplainCode
       ? {
           explanationScore: submission.criteria?.explanationScore || 0,
         }
       : isQA
         ? {
-            correctAnswer: false,
+            correctAnswer: 0,
           }
         : {
             readability: submission.criteria?.readability || 0,
@@ -64,12 +62,7 @@ export default function MarkingDialog({
 
   // Calculate total score based on the question type
   const totalScore = Object.values(criteria).reduce((sum, score) => {
-    if (!isQA) {
-      return ((sum as number) ?? 0) + (typeof score === "number" ? score : 0);
-    } else {
-      // For QA, we only care about the correct answer
-      return (score as boolean) ? 1 : 0;
-    }
+    return ((sum as number) ?? 0) + (typeof score === "number" ? score : 0);
   }, 0);
   // Set max score based on question type
   const maxPossibleScore = isExplainCode ? 5 : isQA ? 1 : 25; // 5 for explain_code, 5×5 for other types
@@ -176,7 +169,7 @@ export default function MarkingDialog({
                       onChange={(e) =>
                         setCriteria((prev) => ({
                           ...prev,
-                          correctAnswer: e.target.checked,
+                          correctAnswer: e.target.checked ? 1 : 0,
                         }))
                       }
                       className="mr-2 accent-primary"
