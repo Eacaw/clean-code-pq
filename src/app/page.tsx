@@ -67,14 +67,6 @@ export default function Home() {
                       <h3 className="text-xl font-medium">{session.name}</h3>
                       <div className="my-2 border-t border-muted-foreground/40" />
                       <p>Questions: {session.questionCount}</p>
-                      {/* <p className="text-sm text-muted-foreground">
-                        Created:{" "}
-                        {session.createdAt?.toDate
-                          ? new Date(
-                              session.createdAt.toDate()
-                            ).toLocaleString()
-                          : "Unknown date"}
-                      </p> */}
                     </div>
                     <Link
                       href={`/quiz/${session.id}/join`}
