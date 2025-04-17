@@ -32,20 +32,16 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center p-6 md:p-24">
       <div className="max-w-4xl w-full flex flex-col items-center">
-        <h1 className="text-4xl font-bold mb-2 text-center">Clean Code Quiz</h1>
+        <h1 className="text-4xl font-bold mb-2 text-center">
+          Certinia Developer Day 2025
+        </h1>
         <p className="text-xl mb-8 text-center text-muted-foreground">
-          Test your programming knowledge with interactive quizzes
+          Clean Code Pub Quiz
         </p>
 
         <div className="w-full flex flex-col gap-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <h2 className="text-2xl font-semibold">Active Sessions</h2>
-            <Link
-              href="/join"
-              className="bg-primary text-primary-foreground px-6 py-2 rounded-md font-medium hover:bg-primary/90 transition-colors"
-            >
-              Join a Session
-            </Link>
           </div>
 
           {loading ? (
@@ -64,25 +60,27 @@ export default function Home() {
               {sessions.map((session) => (
                 <div
                   key={session.id}
-                  className="p-6 border rounded-lg bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow"
+                  className="p-6 border rounded-lg bg-card text-card-foreground shadow-lg hover:shadow-xl transition-shadow shadow-purple-600/20 hover:shadow-purple-600/20"
                 >
                   <div className="flex justify-between items-center">
                     <div>
                       <h3 className="text-xl font-medium">{session.name}</h3>
-                      <p className="text-sm text-muted-foreground">
+                      <div className="my-2 border-t border-muted-foreground/40" />
+                      <p>Questions: {session.questionCount}</p>
+                      {/* <p className="text-sm text-muted-foreground">
                         Created:{" "}
                         {session.createdAt?.toDate
                           ? new Date(
                               session.createdAt.toDate()
                             ).toLocaleString()
                           : "Unknown date"}
-                      </p>
+                      </p> */}
                     </div>
                     <Link
                       href={`/quiz/${session.id}/join`}
-                      className="bg-secondary text-secondary-foreground px-4 py-2 rounded-md font-medium hover:bg-secondary/80 transition-colors"
+                      className="bg-green-600 text-secondary-foreground px-4 py-2 rounded-md font-medium hover:bg-green-700/80 transition-colors shadow-xl"
                     >
-                      Join
+                      Join Session
                     </Link>
                   </div>
                 </div>
