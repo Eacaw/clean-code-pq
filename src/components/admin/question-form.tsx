@@ -119,22 +119,6 @@ export default function QuestionForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div>
-            <label htmlFor="title" className="block text-sm font-medium mb-1">
-              Question Title
-            </label>
-            <input
-              id="title"
-              name="title"
-              type="text"
-              value={formData.title || ""}
-              onChange={handleChange}
-              required
-              placeholder="Enter a clear, concise title for the question..."
-              className="w-full p-2 bg-gray-800 border border-gray-700 rounded-md focus:ring-primary focus:border-primary"
-            />
-          </div>
-
-          <div>
             <label htmlFor="type" className="block text-sm font-medium mb-1">
               Question Type
             </label>
@@ -152,6 +136,22 @@ export default function QuestionForm({
               <option value="concise_code">Concise Code</option>
               <option value="qa">Question & Answer</option>
             </select>
+          </div>
+
+          <div>
+            <label htmlFor="title" className="block text-sm font-medium mb-1">
+              Question Title
+            </label>
+            <input
+              id="title"
+              name="title"
+              type="text"
+              value={formData.title || ""}
+              onChange={handleChange}
+              required
+              placeholder="Enter a clear, concise title for the question..."
+              className="w-full p-2 bg-gray-800 border border-gray-700 rounded-md focus:ring-primary focus:border-primary"
+            />
           </div>
 
           <div>
@@ -283,24 +283,6 @@ export default function QuestionForm({
                     </option>
                   ))}
                 </select>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="correctAnswer"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Correct Answer (Reference)
-                </label>
-                <input
-                  id="correctAnswer"
-                  name="correctAnswer"
-                  type="text"
-                  value={formData.correctAnswer || ""}
-                  onChange={handleChange}
-                  placeholder="Full text of the correct answer for reference..."
-                  className="w-full p-2 bg-gray-800 border border-gray-700 rounded-md focus:ring-primary focus:border-primary"
-                />
               </div>
             </div>
           )}
