@@ -137,6 +137,26 @@ export default function MarkingDialog({
                 </div>
               </div>
 
+              {question.correctAnswer && (
+                <div className="space-y-2">
+                  <h4 className="font-medium">Correct Answer:</h4>
+                  <div className="bg-gray-800 p-4 rounded-md">
+                    <p className="text-sm text-gray-300 whitespace-pre-line">
+                      {isQA
+                        ? question.correctAnswer
+                        : question.correctAnswer
+                            .split("\n")
+                            .map((line, index) => (
+                              <span key={index}>
+                                {line}
+                                <br />
+                              </span>
+                            ))}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {question.scoringCriteria && (
                 <div className="space-y-2">
                   <h4 className="font-medium">Scoring Criteria:</h4>
