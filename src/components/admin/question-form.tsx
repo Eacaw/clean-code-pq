@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState, type ChangeEvent } from "react";
+import { useState, type ChangeEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -29,6 +29,34 @@ export default function QuestionForm({
     ...question,
     points: 5, // Set default points to 5
   });
+
+  const [acceptedAnswerExamples, setAcceptedAnswerExamples] = useState<
+    string[]
+  >([]);
+
+  useEffect(() => {
+    if (formData.type === "qa" && formData.correctAnswer) {
+      generateAcceptedAnswerExamples(formData.correctAnswer);
+    }
+  }, [formData.correctAnswer, formData.type]);
+
+  const generateAcceptedAnswerExamples = (correctAnswer: string) => {
+    if (!correctAnswer.trim()) {
+      setAcceptedAnswerExamples([]);
+      return;
+    }
+
+    const trimmedAnswer = correctAnswer.trim();
+
+    const examples = [
+      `  ${trimmedAnswer}  `,
+      trimmedAnswer.toUpperCase(),
+      trimmedAnswer.toLowerCase(),
+      `  ${trimmedAnswer.toLowerCase()}  `,
+    ];
+
+    setAcceptedAnswerExamples([...new Set(examples)]);
+  };
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -70,34 +98,27 @@ export default function QuestionForm({
     setIsSubmitting(true);
 
     try {
-      // Create base question data
       const baseQuestionData = {
         ...formData,
         points: 5, // Always set points to 5
         timeLimit: Number(formData.timeLimit),
       };
 
-      // Create the final question data object based on question type
       let questionData: Partial<Question>;
 
       if (formData.type === "mcq") {
-        // For MCQ, include correctOptionIndex
         questionData = {
           ...baseQuestionData,
           correctOptionIndex: Number(formData.correctOptionIndex),
         };
       } else {
-        // For other question types, remove correctOptionIndex if it exists
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { correctOptionIndex, ...otherData } = baseQuestionData;
         questionData = otherData;
       }
 
       if (mode === "create") {
-        // Create new question
         await addDoc(collection(db, "questions"), questionData);
       } else if (mode === "edit" && question.id) {
-        // Update existing question
         await updateDoc(doc(db, "questions", question.id), questionData);
       }
 
@@ -241,7 +262,6 @@ export default function QuestionForm({
         </div>
 
         <div className="space-y-4">
-          {/* Dynamic fields based on question type */}
           {formData.type === "mcq" && (
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Multiple Choice Options</h3>
@@ -386,7 +406,7 @@ export default function QuestionForm({
           )}
 
           {formData.type === "qa" && (
-            <div>
+            <div className="space-y-3">
               <label
                 htmlFor="correctAnswer"
                 className="block text-sm font-medium mb-1"
@@ -403,9 +423,31 @@ export default function QuestionForm({
                 placeholder="Enter the correct answer (for regex matching)..."
                 className="w-full p-2 bg-gray-800 border border-gray-700 rounded-md focus:ring-primary focus:border-primary"
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-gray-400">
                 This will be used for regex matching to check answers.
               </p>
+
+              {formData.correctAnswer && acceptedAnswerExamples.length > 0 && (
+                <div className="mt-3 p-3 border border-gray-700 rounded-md bg-gray-800/50">
+                  <p className="text-sm font-medium text-gray-300 mb-2">
+                    Examples of answers that would be accepted:
+                  </p>
+                  <ul className="space-y-1 text-xs text-gray-400">
+                    {acceptedAnswerExamples.map((example, index) => (
+                      <li
+                        key={index}
+                        className="font-mono bg-gray-900 px-2 py-1 rounded"
+                      >
+                        &quot;{example}&quot;
+                      </li>
+                    ))}
+                    <li className="text-gray-500 italic mt-2">
+                      Note: Answers are matched ignoring case and extra
+                      whitespace
+                    </li>
+                  </ul>
+                </div>
+              )}
             </div>
           )}
 
