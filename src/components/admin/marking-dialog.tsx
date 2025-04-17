@@ -71,6 +71,13 @@ export default function MarkingDialog({
     setIsSubmitting(false);
   };
 
+  // Handler for clicking outside the modal
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   // Calculate total score based on the question type
   const totalScore = Object.values(criteria).reduce((sum, score) => {
     return ((sum as number) ?? 0) + (typeof score === "number" ? score : 0);
@@ -79,8 +86,14 @@ export default function MarkingDialog({
   const maxPossibleScore = isExplainCode ? 5 : isQA ? 1 : 25; // 5 for explain_code, 5×5 for other types
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 rounded-lg shadow-lg max-w-5xl w-full max-h-[90vh] flex flex-col">
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      onClick={handleBackdropClick}
+    >
+      <div
+        className="bg-gray-900 rounded-lg shadow-lg max-w-5xl w-full max-h-[90vh] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex justify-between items-center p-4 border-b border-gray-800">
           <h2 className="text-xl font-bold">Mark Submission</h2>
           <button
