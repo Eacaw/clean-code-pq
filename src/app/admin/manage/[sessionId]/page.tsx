@@ -674,6 +674,17 @@ export default function ManageSessionPage({
                                       <span>Mark</span>
                                     </button>
                                   )}
+                                  {question.type === "qa" && (
+                                    <button
+                                      onClick={() =>
+                                        handleMarkSubmission(submission)
+                                      }
+                                      className="flex items-center gap-1 px-2 py-1 bg-primary/20 hover:bg-primary/30 text-primary rounded-md text-sm"
+                                    >
+                                      <FileCode size={14} />
+                                      <span>Verify</span>
+                                    </button>
+                                  )}
                                 </td>
                               </tr>
                             ))}

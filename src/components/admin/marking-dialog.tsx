@@ -12,7 +12,7 @@ interface MarkingDialogProps {
   question: Question | null;
   onSaveScore: (
     submissionId: string,
-    criteria: Record<string, number | undefined>
+    criteria: Record<string, number | boolean | undefined>
   ) => void;
 }
 
@@ -24,18 +24,25 @@ export default function MarkingDialog({
   onSaveScore,
 }: MarkingDialogProps) {
   const isExplainCode = question?.type === "explain_code";
-  const [criteria, setCriteria] = useState<Record<string, number | undefined>>(
+  const isQA = question?.type === "qa";
+  const [criteria, setCriteria] = useState<
+    Record<string, number | boolean | undefined>
+  >(
     isExplainCode
       ? {
           explanationScore: submission.criteria?.explanationScore || 0,
         }
-      : {
-          readability: submission.criteria?.readability || 0,
-          maintainability: submission.criteria?.maintainability || 0,
-          elegance: submission.criteria?.elegance || 0,
-          languageKnowledge: submission.criteria?.languageKnowledge || 0,
-          simplicity: submission.criteria?.simplicity || 0,
-        }
+      : isQA
+        ? {
+            correctAnswer: false,
+          }
+        : {
+            readability: submission.criteria?.readability || 0,
+            maintainability: submission.criteria?.maintainability || 0,
+            elegance: submission.criteria?.elegance || 0,
+            languageKnowledge: submission.criteria?.languageKnowledge || 0,
+            simplicity: submission.criteria?.simplicity || 0,
+          }
   );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,12 +63,16 @@ export default function MarkingDialog({
   };
 
   // Calculate total score based on the question type
-  const totalScore = Object.values(criteria).reduce(
-    (sum, score) => (sum ?? 0) + (score ?? 0),
-    0
-  );
+  const totalScore = Object.values(criteria).reduce((sum, score) => {
+    if (!isQA) {
+      return ((sum as number) ?? 0) + (typeof score === "number" ? score : 0);
+    } else {
+      // For QA, we only care about the correct answer
+      return (score as boolean) ? 1 : 0;
+    }
+  }, 0);
   // Set max score based on question type
-  const maxPossibleScore = isExplainCode ? 5 : 25; // 5 for explain_code, 5×5 for other types
+  const maxPossibleScore = isExplainCode ? 5 : isQA ? 1 : 25; // 5 for explain_code, 5×5 for other types
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -92,11 +103,19 @@ export default function MarkingDialog({
 
               <div className="space-y-2">
                 <h4 className="font-medium">
-                  {isExplainCode ? "Submitted Explanation:" : "Submitted Code:"}
+                  {isExplainCode
+                    ? "Submitted Explanation:"
+                    : isQA
+                      ? "Submitted Answer"
+                      : "Submitted Code:"}
                 </h4>
                 <div className="bg-gray-950 p-4 rounded-md overflow-x-auto">
                   <pre className="text-sm font-mono text-gray-300 whitespace-pre-wrap">
-                    {isExplainCode ? submission.explanation : submission.code}
+                    {isExplainCode
+                      ? submission.explanation
+                      : isQA
+                        ? submission.answer
+                        : submission.code}
                   </pre>
                 </div>
               </div>
@@ -133,13 +152,44 @@ export default function MarkingDialog({
                       Explanation Quality
                     </label>
                     <StarRating
-                      value={criteria.explanationScore ?? 0}
+                      value={
+                        typeof criteria.explanationScore === "number"
+                          ? criteria.explanationScore
+                          : 0
+                      }
                       onChange={(value) =>
                         handleRatingChange("explanationScore", value)
                       }
                     />
                     <p className="text-xs text-gray-400 mt-1">
                       How well does the explanation match the scoring criteria?
+                    </p>
+                  </div>
+                ) : isQA ? (
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Correct Answer
+                    </label>
+                    <input
+                      type="checkbox"
+                      checked={!!criteria.correctAnswer}
+                      onChange={(e) =>
+                        setCriteria((prev) => ({
+                          ...prev,
+                          correctAnswer: e.target.checked,
+                        }))
+                      }
+                      className="mr-2 accent-primary"
+                      id="correct-answer-checkbox"
+                    />
+                    <label
+                      htmlFor="correct-answer-checkbox"
+                      className="text-sm"
+                    >
+                      Mark as correct
+                    </label>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Is the answer correct?
                     </p>
                   </div>
                 ) : (
@@ -149,7 +199,11 @@ export default function MarkingDialog({
                         Readability
                       </label>
                       <StarRating
-                        value={criteria.readability ?? 0}
+                        value={
+                          typeof criteria.readability === "number"
+                            ? criteria.readability
+                            : 0
+                        }
                         onChange={(value) =>
                           handleRatingChange("readability", value)
                         }
@@ -164,7 +218,11 @@ export default function MarkingDialog({
                         Maintainability
                       </label>
                       <StarRating
-                        value={criteria.maintainability ?? 0}
+                        value={
+                          typeof criteria.maintainability === "number"
+                            ? criteria.maintainability
+                            : 0
+                        }
                         onChange={(value) =>
                           handleRatingChange("maintainability", value)
                         }
@@ -179,7 +237,11 @@ export default function MarkingDialog({
                         Elegance
                       </label>
                       <StarRating
-                        value={criteria.elegance ?? 0}
+                        value={
+                          typeof criteria.elegance === "number"
+                            ? criteria.elegance
+                            : 0
+                        }
                         onChange={(value) =>
                           handleRatingChange("elegance", value)
                         }
@@ -195,7 +257,11 @@ export default function MarkingDialog({
                         Language Knowledge
                       </label>
                       <StarRating
-                        value={criteria.languageKnowledge ?? 0}
+                        value={
+                          typeof criteria.languageKnowledge === "number"
+                            ? criteria.languageKnowledge
+                            : 0
+                        }
                         onChange={(value) =>
                           handleRatingChange("languageKnowledge", value)
                         }
@@ -211,7 +277,11 @@ export default function MarkingDialog({
                         Simplicity
                       </label>
                       <StarRating
-                        value={criteria.simplicity ?? 0}
+                        value={
+                          typeof criteria.simplicity === "number"
+                            ? criteria.simplicity
+                            : 0
+                        }
                         onChange={(value) =>
                           handleRatingChange("simplicity", value)
                         }
