@@ -2,7 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { doc, getDoc, onSnapshot } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  onSnapshot,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Question, Session } from "@/types";
 import WaitingScreen from "@/components/quiz/waiting-screen";
@@ -50,10 +58,35 @@ export default function QuizPlayPage({
         return;
       }
 
-      setTeamInfo({
-        teamId: sessionInfo.teamId,
-        teamName: sessionInfo.teamName,
-      });
+      // Fetch the correct teamId from Firebase using the teamName
+      const fetchTeamId = async () => {
+        try {
+          const teamsRef = collection(db, `sessions/${sessionId}/teams`);
+          const q = query(teamsRef, where("name", "==", sessionInfo.teamName));
+          const snapshot = await getDocs(q);
+          if (!snapshot.empty) {
+            const teamDoc = snapshot.docs[0];
+            setTeamInfo({
+              teamId: teamDoc.id, // Use the Firebase record id
+              teamName: sessionInfo.teamName,
+            });
+          } else {
+            // fallback: use the stored info if not found
+            setTeamInfo({
+              teamId: sessionInfo.teamId,
+              teamName: sessionInfo.teamName,
+            });
+          }
+        } catch (err) {
+          console.error("Error fetching team record:", err);
+          setTeamInfo({
+            teamId: sessionInfo.teamId,
+            teamName: sessionInfo.teamName,
+          });
+        }
+      };
+
+      fetchTeamId();
     } catch (err) {
       console.error("Error parsing session storage:", err);
       router.push(`/quiz/${sessionId}/join`);
@@ -162,6 +195,13 @@ export default function QuizPlayPage({
     sessionData.currentQuestionStartTime &&
     teamInfo !== null;
 
+  const isQuizComplete =
+    sessionData?.status === "completed" ||
+    (sessionData?.currentQuestionIndex !== undefined &&
+      sessionData?.questionIds?.length !== undefined &&
+      sessionData.currentQuestionIndex >= sessionData.questionIds.length - 1 &&
+      hasSubmitted);
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="bg-gray-900 rounded-lg shadow-lg p-6">
@@ -193,15 +233,7 @@ export default function QuizPlayPage({
         {/* Quiz content */}
         <div>
           {!isQuestionActive || hasSubmitted ? (
-            <WaitingScreen
-              isQuizComplete={
-                sessionData?.currentQuestionIndex !== undefined &&
-                sessionData?.questionIds?.length !== undefined &&
-                sessionData.currentQuestionIndex >=
-                  sessionData.questionIds.length - 1 &&
-                hasSubmitted
-              }
-            />
+            <WaitingScreen isQuizComplete={isQuizComplete} />
           ) : (
             <QuestionDisplay
               question={currentQuestion}
