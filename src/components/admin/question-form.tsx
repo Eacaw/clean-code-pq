@@ -55,7 +55,7 @@ export default function QuestionForm({
       `  ${trimmedAnswer.toLowerCase()}  `,
     ];
 
-    setAcceptedAnswerExamples([...new Set(examples)]);
+    setAcceptedAnswerExamples(Array.from(new Set(examples)));
   };
 
   const handleChange = (
@@ -112,6 +112,7 @@ export default function QuestionForm({
           correctOptionIndex: Number(formData.correctOptionIndex),
         };
       } else {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { correctOptionIndex, ...otherData } = baseQuestionData;
         questionData = otherData;
       }
