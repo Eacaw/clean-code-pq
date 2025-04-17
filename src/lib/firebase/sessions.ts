@@ -18,6 +18,7 @@ export interface Session {
   name: string;
   status: "active" | "completed" | "paused";
   createdAt: Timestamp;
+  questionCount: number;
   // Add other fields as needed
 }
 
@@ -46,7 +47,7 @@ export const getActiveSessions = async (): Promise<Session[]> => {
           name: data.name || "Unnamed Session",
           status: data.status || "active",
           createdAt: data.createdAt || Timestamp.now(),
-          // Map any other fields needed
+          questionCount: data.questionIds.length || 0,
         } as Session;
       }
     );
