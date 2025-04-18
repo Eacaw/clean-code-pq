@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
 import { AuthProvider } from "@/lib/auth";
+import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,6 +23,8 @@ export default function RootLayout({
       <body
         className={`${inter.className} min-h-screen bg-gray-950 text-gray-100`}
       >
+        <Analytics />
+
         <AuthProvider>
           <div className="flex flex-col min-h-screen">
             <Navbar />
