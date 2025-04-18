@@ -83,7 +83,7 @@ export default function MarkingDialog({
     return ((sum as number) ?? 0) + (typeof score === "number" ? score : 0);
   }, 0);
   // Set max score based on question type
-  const maxPossibleScore = isExplainCode ? 5 : isQA ? 1 : 25; // 5 for explain_code, 5×5 for other types
+  const maxPossibleScore = isExplainCode ? 5 : isQA ? 5 : 25; // 5 for explain_code & qa, 5×5 for other types
 
   return (
     <div
@@ -213,7 +213,7 @@ export default function MarkingDialog({
                       onChange={(e) =>
                         setCriteria((prev) => ({
                           ...prev,
-                          correctAnswer: e.target.checked ? 1 : 0,
+                          correctAnswer: e.target.checked ? 5 : 0,
                         }))
                       }
                       className="mr-2 accent-primary"
