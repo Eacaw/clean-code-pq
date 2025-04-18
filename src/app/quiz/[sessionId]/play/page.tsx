@@ -233,7 +233,12 @@ export default function QuizPlayPage({
         {/* Quiz content */}
         <div>
           {!isQuestionActive || hasSubmitted ? (
-            <WaitingScreen isQuizComplete={isQuizComplete} />
+            <WaitingScreen
+              isQuizComplete={isQuizComplete}
+              currentQuestionIndex={
+                (sessionData?.currentQuestionIndex ?? -1) + 1
+              }
+            />
           ) : (
             <QuestionDisplay
               question={currentQuestion}
