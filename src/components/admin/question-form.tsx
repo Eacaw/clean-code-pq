@@ -48,6 +48,7 @@ export default function QuestionForm({
     ...question,
     points: 5,
     timeLimit: getDefaultTimeLimit(question.type),
+    topic: question.topic || "",
   });
 
   // Update time limit when question type changes
@@ -131,6 +132,7 @@ export default function QuestionForm({
         ...formData,
         points: 5, // Always set points to 5
         timeLimit: Number(formData.timeLimit),
+        topic: formData.topic?.trim() || "", // ensure topic is always present
       };
 
       let questionData: Partial<Question>;
@@ -278,6 +280,22 @@ export default function QuestionForm({
                 Paste a direct link to an image that will be displayed with the
                 question
               </p>
+            </div>
+
+            <div>
+              <RequiredLabel htmlFor="topic" required>
+                Topic
+              </RequiredLabel>
+              <input
+                id="topic"
+                name="topic"
+                type="text"
+                value={formData.topic || ""}
+                onChange={handleChange}
+                required
+                placeholder="Enter the topic for this question (e.g. Arrays, Functions, Clean Code)..."
+                className="w-full p-2 bg-gray-800 border border-gray-700 rounded-md focus:ring-primary focus:border-primary"
+              />
             </div>
           </div>
 
