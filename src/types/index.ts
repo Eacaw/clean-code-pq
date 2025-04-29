@@ -18,6 +18,7 @@ export interface QuestionBase {
   timeLimit: number; // in seconds
   type: "mcq" | "edit_code" | "concise_code" | "qa" | "explain_code";
   imageUrl?: string | null;
+  topic: string;
 }
 
 // Extended Question type with all possible fields
@@ -33,8 +34,6 @@ export interface Question extends QuestionBase {
   scoringCriteria?: string;
 
   createdAt?: any;
-
-  topic: string; // <-- new required field
 }
 
 // Team represents a group of participants
