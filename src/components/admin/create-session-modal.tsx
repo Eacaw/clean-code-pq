@@ -192,9 +192,14 @@ export default function CreateSessionModal({
                         className="flex-grow cursor-pointer"
                       >
                         <div className="font-medium">{question.title}</div>
-                        <div className="text-xs text-gray-400">
-                          {question.type} • {question.points} points •{" "}
-                          {question.timeLimit}s
+                        <div className="text-xs text-gray-400 flex items-center gap-2">
+                          <span className="bg-gray-700 text-xs px-2 py-1 rounded text-gray-100 font-medium">
+                            {question.type}
+                          </span>
+                          <span className="bg-blue-900 text-blue-300 text-xs px-2 py-1 rounded font-medium ml-1">
+                            {question.topic}
+                          </span>
+                          {question.points} points • {question.timeLimit}s
                         </div>
                       </label>
                     </div>
