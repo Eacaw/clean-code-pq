@@ -26,10 +26,38 @@ export default function QuestionForm({
 }: QuestionFormProps) {
   const router = useRouter();
 
+  // Set default time limit based on question type
+  const getDefaultTimeLimit = (type: string | undefined) => {
+    switch (type) {
+      case "mcq":
+        return 30;
+      case "qa":
+        return 45;
+      case "concise_code":
+        return 300;
+      case "explain_code":
+        return 180;
+      case "edit_code":
+        return 300;
+      default:
+        return 30;
+    }
+  };
+
   const [formData, setFormData] = useState<Partial<Question>>({
     ...question,
-    points: 5, // Set default points to 5
+    points: 5,
+    timeLimit: getDefaultTimeLimit(question.type),
   });
+
+  // Update time limit when question type changes
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      timeLimit: getDefaultTimeLimit(formData.type),
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.type]);
 
   const [acceptedAnswerExamples, setAcceptedAnswerExamples] = useState<
     string[]
@@ -63,6 +91,7 @@ export default function QuestionForm({
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
+    console.log("{ name, value }:", { name, value });
 
     if (name === "timeLimit" || name === "correctOptionIndex") {
       setFormData({
