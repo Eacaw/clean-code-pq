@@ -10,7 +10,7 @@ import type { Question } from "@/types";
 export default function EditQuestionPage({
   params,
 }: {
-  params: { sessionId: string };
+  params: { id: string };
 }) {
   const router = useRouter();
   const [question, setQuestion] = useState<Question | null>(null);
@@ -21,7 +21,7 @@ export default function EditQuestionPage({
   useEffect(() => {
     async function fetchQuestion() {
       try {
-        const docRef = doc(db, "questions", params.sessionId);
+        const docRef = doc(db, "questions", params.id);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
@@ -41,7 +41,7 @@ export default function EditQuestionPage({
     }
 
     fetchQuestion();
-  }, [params.sessionId]);
+  }, [params.id]);
 
   const handleCancel = () => {
     router.push("/admin/questions");
