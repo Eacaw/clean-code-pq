@@ -33,6 +33,8 @@ export interface Question extends QuestionBase {
   scoringCriteria?: string;
 
   createdAt?: any;
+
+  topic: string; // <-- new required field
 }
 
 // Team represents a group of participants
