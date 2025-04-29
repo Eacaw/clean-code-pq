@@ -91,7 +91,6 @@ export default function QuestionForm({
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    console.log("{ name, value }:", { name, value });
 
     if (name === "timeLimit" || name === "correctOptionIndex") {
       setFormData({
