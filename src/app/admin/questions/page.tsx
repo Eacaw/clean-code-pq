@@ -1,58 +1,58 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { PlusCircle, Edit, Trash2 } from "lucide-react"
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import type { QuestionBase } from "@/types"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { PlusCircle, Edit, Trash2 } from "lucide-react";
+import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import type { QuestionBase } from "@/types";
 
 export default function QuestionsPage() {
-  const [questions, setQuestions] = useState<QuestionBase[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [questions, setQuestions] = useState<QuestionBase[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchQuestions() {
       try {
-        const questionsCollection = collection(db, "questions")
-        const querySnapshot = await getDocs(questionsCollection)
+        const questionsCollection = collection(db, "questions");
+        const querySnapshot = await getDocs(questionsCollection);
 
         const fetchedQuestions = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-        })) as QuestionBase[]
+        })) as QuestionBase[];
 
-        setQuestions(fetchedQuestions)
-        setLoading(false)
+        setQuestions(fetchedQuestions);
+        setLoading(false);
       } catch (err) {
-        console.error("Error fetching questions:", err)
-        setError("Failed to load questions. Please try again.")
-        setLoading(false)
+        console.error("Error fetching questions:", err);
+        setError("Failed to load questions. Please try again.");
+        setLoading(false);
       }
     }
 
-    fetchQuestions()
-  }, [])
+    fetchQuestions();
+  }, []);
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this question?")) {
       try {
-        await deleteDoc(doc(db, "questions", id))
-        setQuestions(questions.filter((question) => question.id !== id))
+        await deleteDoc(doc(db, "questions", id));
+        setQuestions(questions.filter((question) => question.id !== id));
       } catch (err) {
-        console.error("Error deleting question:", err)
-        alert("Failed to delete question. Please try again.")
+        console.error("Error deleting question:", err);
+        alert("Failed to delete question. Please try again.");
       }
     }
-  }
+  };
 
   if (loading) {
-    return <div className="flex justify-center p-8">Loading questions...</div>
+    return <div className="flex justify-center p-8">Loading questions...</div>;
   }
 
   if (error) {
-    return <div className="text-red-500 p-8">{error}</div>
+    return <div className="text-red-500 p-8">{error}</div>;
   }
 
   return (
@@ -70,7 +70,9 @@ export default function QuestionsPage() {
 
       {questions.length === 0 ? (
         <div className="text-center p-8 bg-gray-900 rounded-lg">
-          <p className="text-gray-400">No questions found. Create your first question!</p>
+          <p className="text-gray-400">
+            No questions found. Create your first question!
+          </p>
         </div>
       ) : (
         <div className="overflow-x-auto">
@@ -81,16 +83,21 @@ export default function QuestionsPage() {
                 <th className="p-4 border-b border-gray-800">Type</th>
                 <th className="p-4 border-b border-gray-800">Points</th>
                 <th className="p-4 border-b border-gray-800">Time Limit</th>
+                <th className="p-4 border-b border-gray-800">Topic</th>
                 <th className="p-4 border-b border-gray-800">Actions</th>
               </tr>
             </thead>
             <tbody>
               {questions.map((question) => (
-                <tr key={question.id} className="border-b border-gray-800 hover:bg-gray-900/50">
+                <tr
+                  key={question.id}
+                  className="border-b border-gray-800 hover:bg-gray-900/50"
+                >
                   <td className="p-4">{question.title}</td>
                   <td className="p-4">{question.type}</td>
                   <td className="p-4">{question.points}</td>
                   <td className="p-4">{question.timeLimit}s</td>
+                  <td className="p-4">{question.topic}</td>
                   <td className="p-4 flex gap-2">
                     <Link
                       href={`/admin/questions/${question.id}/edit`}
@@ -114,5 +121,5 @@ export default function QuestionsPage() {
         </div>
       )}
     </div>
-  )
+  );
 }
