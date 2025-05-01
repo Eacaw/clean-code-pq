@@ -8,7 +8,6 @@ import {
   collection,
   query,
   orderBy,
-  limit,
   onSnapshot,
   serverTimestamp,
   getDoc,
