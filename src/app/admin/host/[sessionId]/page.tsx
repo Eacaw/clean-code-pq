@@ -94,7 +94,7 @@ export default function AdminHostPage({
     if (!isAdmin) return;
 
     const teamsRef = collection(db, `sessions/${sessionId}/teams`);
-    const topTeamsQuery = query(teamsRef, orderBy("score", "desc"), limit(3));
+    const topTeamsQuery = query(teamsRef, orderBy("score", "desc"));
 
     const unsubscribe = onSnapshot(
       topTeamsQuery,
