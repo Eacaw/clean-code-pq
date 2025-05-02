@@ -1,7 +1,5 @@
 # Clean Code Quiz Platform
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
 ## About the Clean Code Quiz
 
 The Clean Code Quiz is an interactive, team-based quiz platform designed to test and improve your programming knowledge and code quality skills. Sessions are hosted live, with teams joining to answer a series of questions in real time. The platform supports a variety of question types, automatic and manual marking, and a live leaderboard.
